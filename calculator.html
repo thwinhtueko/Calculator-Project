@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Contact</title>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.2/mdb.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="row my-4">
+                <h3 class="text-center">Calculator</h3>
+                <div class="col-12">
+                    <div class="card" style="background-color: rgb(197, 190, 190);">
+                        <div class="card-body">
+                            <div class="p-3 d-flex justify-content-end align-content-center bg-dark rounded text-white"
+                                style="border: 1px solid white;">
+                                {{answer}}
+                            </div>
+
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <input type="text" v-model="numInput.firstNumber"
+                                        class="form-control form-control-lg" placeholder="Enter First Number">
+                                    <small class="text-danger fw-bold" v-if="validation.firstStatus">required first
+                                        number</small>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" v-model="numInput.secondNumber"
+                                        class="form-control form-control-lg" placeholder="Enter Sec Number">
+                                    <small class="text-danger fw-bold" v-if="validation.secondStatus">required second
+                                        number</small>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+
+                                <div class="d-flex justify-content-between align-content-center">
+                                    <div class="col-4">
+                                        <button class="btn btn-danger btn-lg" @click="del()">delete</button>
+                                    </div>
+                                    <div class="col-4 d-flex flex-column">
+                                        <select class="form-control form-control-lg fs-6" v-model="numInput.operator">
+                                            <option value="">Choose...</option>
+                                            <option value="+">+</option>
+                                            <option value="-">-</option>
+                                            <option value="*">×</option>
+                                            <option value="/">÷</option>
+                                        </select>
+                                        <small class="text-danger fw-bold" v-if="validation.operatorStatus">required
+                                            operator</small>
+                                    </div>
+                                    <div class="col-4 d-flex align-self-baseline justify-content-end">
+                                        <button class="btn btn-dark btn-lg" @click="clear()">Clear</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between gap-2 mt-3">
+                                <button class="btn btn-primary btn-lg w-50" @click="cal()">Calculate</button>
+                                <button class="btn btn-warning btn-lg w-50" @click="saved()">Save</button>
+                            </div>
+
+                            <div class="mt-3">
+                                <h4>History</h4>
+
+                                <span v-for="item in record" class="fs-6"> {{item}} </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+<script>
+    let app = new Vue({
+        el: "#app",
+        data: {
+            numInput: {
+                firstNumber: '',
+                secondNumber: '',
+                operator: '',
+            },
+
+            validation: {
+                firstStatus: false,
+                secondStatus: false,
+                operatorStatus: false,
+            },
+
+            record: [],
+
+            answer: 0,
+
+            savedStatus: false,
+
+            delStatus: false,
+
+        },
+
+        methods: {
+            cal() {
+                this.validationCheck();
+
+                if (!this.validation.firstStatus && !this.validation.secondStatus && !this.validation.operatorStatus) {
+                    let result = this.calculation();
+
+                    this.answer = `
+                ${this.numInput.firstNumber}
+                ${this.numInput.operator}
+                ${this.numInput.secondNumber} = 
+                ${result}
+                `;
+
+                    this.numInput.firstNumber = "";
+                    this.numInput.secondNumber = "";
+                    this.numInput.operator = "";
+
+                    this.savedStatus = true;
+                    this.delStatus = false;
+                }
+            },
+
+            validationCheck() {
+                this.validation.firstStatus = this.numInput.firstNumber == "" ? true : false;
+                this.validation.secondStatus = this.numInput.secondNumber == "" ? true : false;
+                this.validation.operatorStatus = this.numInput.operator == "" ? true : false;
+            },
+
+            clear() {
+                this.answer = 0;
+                this.numInput.firstNumber = "";
+                this.numInput.secondNumber = "";
+                this.numInput.operator = "";
+
+                this.validation.firstStatus = "";
+                this.validation.secondStatus = "";
+                this.validation.operatorStatus = "";
+            },
+
+            saved() {
+                if (this.savedStatus) {
+
+                    this.record.push(this.answer)
+
+                    this.delStatus = true;
+                }
+
+                this.savedStatus = false;
+            },
+
+            del() {
+                if (this.delStatus) {
+                    this.record = "";
+                }
+            },
+
+            calculation() {
+                let num1 = parseInt(this.numInput.firstNumber);
+                let num2 = parseInt(this.numInput.secondNumber);
+
+                switch (this.numInput.operator) {
+                    case "+":
+                        return num1 + num2;
+                        break;
+
+                    case "-":
+                        return num1 - num2;
+                        break;
+
+                    case "*":
+                        return num1 * num2;
+                        break;
+
+                    case "/":
+                        return num1 / num2;
+                        break;
+                };
+            },
+
+        },
+    });
+</script>
+
+</html>
